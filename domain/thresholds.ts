@@ -66,3 +66,13 @@ export function resolveColorBand(
 export function isExtremeReading(band: ColorBand): boolean {
   return band === 'extreme_low' || band === 'extreme_high';
 }
+
+/**
+ * Maps a slot code to its corresponding threshold config type.
+ */
+export function getConfigTypeForSlot(slot: string): 'pre_meal' | 'post_meal' | '3am' {
+  if (slot === '3AM') return '3am';
+  if (['AB', 'AL', 'AD'].includes(slot)) return 'post_meal';
+  return 'pre_meal';
+}
+
