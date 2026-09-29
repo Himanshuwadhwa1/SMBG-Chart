@@ -38,10 +38,14 @@ export interface ThresholdConfig {
   bad_high: number;
 }
 
+export type ThemeMode = 'system' | 'light' | 'dark';
+
 export interface Settings {
   retention_duration_months: number | null;
   unit_system: string;
+  theme_mode: ThemeMode;
 }
+
 
 export interface ReadingWithTags extends Reading {
   tags: Tag[];

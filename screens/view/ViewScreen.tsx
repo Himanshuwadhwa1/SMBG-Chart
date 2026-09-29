@@ -10,11 +10,13 @@ import {
 import { getReadingsByDateRange, getThresholdConfigs } from '../../db';
 import { ReadingWithTags, ThresholdConfig } from '../../db/types';
 import { getClinicalDate } from '../../domain/clinicalDate';
+import { useTheme } from '../../state/ThemeContext';
 import { DateRangePreset, getDateRangeForPreset } from './dateRanges';
 import { DateRangeSelector } from './DateRangeSelector';
 import { LogbookChart } from './LogbookChart';
 
 export default function ViewScreen() {
+  const { colors } = useTheme();
   const [preset, setPreset] = useState<DateRangePreset>('last_3_months');
   const [customStart, setCustomStart] = useState<string>(
     getClinicalDate(new Date(Date.now() - 90 * 24 * 60 * 60 * 1000))
@@ -69,9 +71,15 @@ export default function ViewScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} testID="view-screen">
-      <Text style={styles.title}>SMBG Chart Review</Text>
-      <Text style={styles.subtitle}>
+    <ScrollView
+      contentContainerStyle={[
+        styles.container,
+        { backgroundColor: colors.background },
+      ]}
+      testID="view-screen"
+    >
+      <Text style={[styles.title, { color: colors.text }]}>SMBG Chart Review</Text>
+      <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
         Read-only self-monitoring blood glucose logbook
       </Text>
 
@@ -86,19 +94,39 @@ export default function ViewScreen() {
       />
 
       {/* Summary Header */}
-      <View style={styles.summaryBar} testID="summary-bar">
-        <Text style={styles.summaryText}>
-          Showing <Text style={styles.highlightText}>{readings.length}</Text> readings
-          from <Text style={styles.highlightText}>{activeRange.startDate}</Text> to{' '}
-          <Text style={styles.highlightText}>{activeRange.endDate}</Text>
+      <View
+        style={[
+          styles.summaryBar,
+          {
+            backgroundColor: colors.card,
+            borderColor: colors.border,
+          },
+        ]}
+        testID="summary-bar"
+      >
+        <Text style={[styles.summaryText, { color: colors.text }]}>
+          Showing{' '}
+          <Text style={[styles.highlightText, { color: colors.primary }]}>
+            {readings.length}
+          </Text>{' '}
+          readings from{' '}
+          <Text style={[styles.highlightText, { color: colors.primary }]}>
+            {activeRange.startDate}
+          </Text>{' '}
+          to{' '}
+          <Text style={[styles.highlightText, { color: colors.primary }]}>
+            {activeRange.endDate}
+          </Text>
         </Text>
       </View>
 
       {/* Loading or Chart Display */}
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0969da" />
-          <Text style={styles.loadingText}>Loading SMBG Chart...</Text>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
+            Loading SMBG Chart...
+          </Text>
         </View>
       ) : (
         <LogbookChart
@@ -113,23 +141,18 @@ export default function ViewScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: '#ffffff',
   },
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#1f2328',
   },
   subtitle: {
     fontSize: 14,
-    color: '#57606a',
     marginTop: 4,
     marginBottom: 8,
   },
   summaryBar: {
-    backgroundColor: '#f6f8fa',
     borderWidth: 1,
-    borderColor: '#d0d7de',
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 12,
@@ -137,11 +160,9 @@ const styles = StyleSheet.create({
   },
   summaryText: {
     fontSize: 13,
-    color: '#24292f',
   },
   highlightText: {
     fontWeight: '700',
-    color: '#0969da',
   },
   loadingContainer: {
     padding: 40,
@@ -151,6 +172,6 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     fontSize: 14,
-    color: '#57606a',
   },
 });
+

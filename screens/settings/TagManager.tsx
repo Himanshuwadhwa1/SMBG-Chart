@@ -8,8 +8,10 @@ import {
   setTagActiveStatus,
 } from '../../db';
 import { Tag } from '../../db/types';
+import { useTheme } from '../../state/ThemeContext';
 
 export const TagManager: React.FC = () => {
+  const { colors } = useTheme();
   const [tags, setTags] = useState<Tag[]>([]);
   const [newTagName, setNewTagName] = useState<string>('');
   const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
@@ -77,15 +79,31 @@ export const TagManager: React.FC = () => {
   };
 
   return (
-    <View style={styles.container} testID="tag-manager">
-      <Text style={styles.sectionTitle}>Tag Management</Text>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.card, borderColor: colors.border },
+      ]}
+      testID="tag-manager"
+    >
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Tag Management</Text>
 
       {message && (
         <View
-          style={[styles.messageBanner, message.isError ? styles.errorBanner : styles.successBanner]}
+          style={[
+            styles.messageBanner,
+            message.isError
+              ? { backgroundColor: colors.errorBg, borderColor: colors.error }
+              : { backgroundColor: colors.successBg, borderColor: colors.success },
+          ]}
           testID="tag-message"
         >
-          <Text style={[styles.messageText, message.isError ? styles.errorText : styles.successText]}>
+          <Text
+            style={[
+              styles.messageText,
+              { color: message.isError ? colors.error : colors.success },
+            ]}
+          >
             {message.text}
           </Text>
         </View>
@@ -94,13 +112,25 @@ export const TagManager: React.FC = () => {
       {/* Add Custom Tag Form */}
       <View style={styles.addTagRow}>
         <TextInput
-          style={styles.addInput}
+          style={[
+            styles.addInput,
+            {
+              backgroundColor: colors.background,
+              borderColor: colors.border,
+              color: colors.text,
+            },
+          ]}
           value={newTagName}
           onChangeText={setNewTagName}
           placeholder="New custom tag name..."
+          placeholderTextColor={colors.textSecondary}
           testID="input-new-tag"
         />
-        <TouchableOpacity style={styles.addButton} onPress={handleAddCustomTag} testID="add-tag-button">
+        <TouchableOpacity
+          style={[styles.addButton, { backgroundColor: colors.primary }]}
+          onPress={handleAddCustomTag}
+          testID="add-tag-button"
+        >
           <Text style={styles.addButtonText}>Add Tag</Text>
         </TouchableOpacity>
       </View>
@@ -108,36 +138,71 @@ export const TagManager: React.FC = () => {
       {/* Tag List */}
       <View style={styles.tagList} testID="tag-list">
         {tags.map((tag) => (
-          <View key={tag.id} style={styles.tagItem} testID={`tag-item-${tag.id}`}>
+          <View
+            key={tag.id}
+            style={[
+              styles.tagItem,
+              {
+                backgroundColor: colors.background,
+                borderColor: colors.border,
+              },
+            ]}
+            testID={`tag-item-${tag.id}`}
+          >
             <View style={styles.tagInfo}>
-              <Text style={[styles.tagName, !tag.is_active && styles.inactiveTagName]}>
+              <Text
+                style={[
+                  styles.tagName,
+                  { color: tag.is_active ? colors.text : colors.textSecondary },
+                  !tag.is_active && styles.inactiveTagName,
+                ]}
+              >
                 {tag.name}
               </Text>
               {tag.is_system_default ? (
-                <Text style={styles.systemBadge}>System</Text>
+                <Text style={[styles.badge, { backgroundColor: colors.border, color: colors.textSecondary }]}>
+                  System
+                </Text>
               ) : (
-                <Text style={styles.customBadge}>Custom</Text>
+                <Text style={[styles.badge, { backgroundColor: colors.successBg, color: colors.success }]}>
+                  Custom
+                </Text>
               )}
             </View>
 
             <View style={styles.tagActions}>
               <TouchableOpacity
-                style={[styles.actionButton, tag.is_active ? styles.deactivateButton : styles.activateButton]}
+                style={[
+                  styles.actionButton,
+                  tag.is_active
+                    ? { backgroundColor: colors.card, borderColor: colors.border }
+                    : { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                ]}
                 onPress={() => handleToggleActive(tag)}
                 testID={`toggle-tag-${tag.id}`}
               >
-                <Text style={[styles.actionText, tag.is_active ? styles.deactivateText : styles.activateText]}>
+                <Text
+                  style={[
+                    styles.actionText,
+                    { color: tag.is_active ? colors.textSecondary : colors.primary },
+                  ]}
+                >
                   {tag.is_active ? 'Deactivate' : 'Activate'}
                 </Text>
               </TouchableOpacity>
 
               {!tag.is_system_default && (
                 <TouchableOpacity
-                  style={styles.deleteButton}
+                  style={[
+                    styles.deleteButton,
+                    { backgroundColor: colors.errorBg, borderColor: colors.error },
+                  ]}
                   onPress={() => handleDeleteTag(tag)}
                   testID={`delete-tag-${tag.id}`}
                 >
-                  <Text style={styles.deleteText}>Delete</Text>
+                  <Text style={[styles.deleteText, { color: colors.error }]}>
+                    Delete
+                  </Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -147,11 +212,13 @@ export const TagManager: React.FC = () => {
 
       {/* Reset Defaults Button */}
       <TouchableOpacity
-        style={styles.resetButton}
+        style={[styles.resetButton, { borderColor: colors.border }]}
         onPress={handleResetDefaults}
         testID="reset-tags-button"
       >
-        <Text style={styles.resetButtonText}>Reset System Tags to Defaults</Text>
+        <Text style={[styles.resetButtonText, { color: colors.textSecondary }]}>
+          Reset System Tags to Defaults
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -160,16 +227,13 @@ export const TagManager: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     marginVertical: 12,
-    backgroundColor: '#ffffff',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#d0d7de',
     padding: 16,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1f2328',
     marginBottom: 12,
   },
   messageBanner: {
@@ -178,23 +242,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderWidth: 1,
   },
-  errorBanner: {
-    backgroundColor: '#ffebe9',
-    borderColor: '#ff8182',
-  },
-  successBanner: {
-    backgroundColor: '#dafbe1',
-    borderColor: '#4ac26b',
-  },
   messageText: {
     fontSize: 13,
     fontWeight: '500',
-  },
-  errorText: {
-    color: '#cf222e',
-  },
-  successText: {
-    color: '#1a7f37',
   },
   addTagRow: {
     flexDirection: 'row',
@@ -204,15 +254,12 @@ const styles = StyleSheet.create({
   addInput: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#d0d7de',
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontSize: 14,
-    backgroundColor: '#ffffff',
   },
   addButton: {
-    backgroundColor: '#0969da',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 6,
@@ -234,9 +281,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 6,
-    backgroundColor: '#f6f8fa',
     borderWidth: 1,
-    borderColor: '#f0f2f5',
   },
   tagInfo: {
     flexDirection: 'row',
@@ -246,24 +291,12 @@ const styles = StyleSheet.create({
   tagName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#24292f',
   },
   inactiveTagName: {
-    color: '#8c959f',
     textDecorationLine: 'line-through',
   },
-  systemBadge: {
+  badge: {
     fontSize: 11,
-    color: '#57606a',
-    backgroundColor: '#ddf4ff',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 10,
-  },
-  customBadge: {
-    fontSize: 11,
-    color: '#1a7f37',
-    backgroundColor: '#dafbe1',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 10,
@@ -278,40 +311,22 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderWidth: 1,
   },
-  deactivateButton: {
-    borderColor: '#d0d7de',
-    backgroundColor: '#ffffff',
-  },
-  activateButton: {
-    borderColor: '#0969da',
-    backgroundColor: '#ddf4ff',
-  },
   actionText: {
     fontSize: 12,
     fontWeight: '600',
-  },
-  deactivateText: {
-    color: '#57606a',
-  },
-  activateText: {
-    color: '#0969da',
   },
   deleteButton: {
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
-    backgroundColor: '#ffebe9',
-    borderColor: '#ff8182',
     borderWidth: 1,
   },
   deleteText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#cf222e',
   },
   resetButton: {
     borderWidth: 1,
-    borderColor: '#d0d7de',
     paddingVertical: 10,
     borderRadius: 6,
     alignItems: 'center',
@@ -319,6 +334,6 @@ const styles = StyleSheet.create({
   resetButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#57606a',
   },
 });
+

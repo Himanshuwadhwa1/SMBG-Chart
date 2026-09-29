@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { ColorBand } from '../../domain/thresholds';
+import { useTheme } from '../../state/ThemeContext';
 
 interface ExtremeNudgeModalProps {
   visible: boolean;
@@ -19,6 +20,7 @@ export const ExtremeNudgeModal: React.FC<ExtremeNudgeModalProps> = ({
   onDismiss,
   onSaveComment,
 }) => {
+  const { colors } = useTheme();
   const [comment, setComment] = useState(initialComment);
 
   const isLow = colorBand === 'extreme_low';
@@ -32,21 +34,29 @@ export const ExtremeNudgeModal: React.FC<ExtremeNudgeModalProps> = ({
       testID="extreme-nudge-modal"
     >
       <View style={styles.overlay}>
-        <View style={styles.dialog}>
+        <View style={[styles.dialog, { backgroundColor: colors.surface }]}>
           <View style={[styles.headerBadge, isLow ? styles.lowBadge : styles.highBadge]}>
             <Text style={styles.headerBadgeText}>
               {isLow ? '⚠️ Extreme Low Glucose' : '⚠️ Extreme High Glucose'}
             </Text>
           </View>
 
-          <Text style={styles.title}>Extreme Reading ({value} mg/dL)</Text>
-          <Text style={styles.message}>
+          <Text style={[styles.title, { color: colors.text }]}>Extreme Reading ({value} mg/dL)</Text>
+          <Text style={[styles.message, { color: colors.textSecondary }]}>
             This reading falls in your extreme {isLow ? 'low' : 'high'} threshold band. Would you like to add a remark or reason for reference?
           </Text>
 
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.background,
+                borderColor: colors.border,
+                color: colors.text,
+              },
+            ]}
             placeholder="e.g. Skipped meal, heavy exercise, dosage change..."
+            placeholderTextColor={colors.textSecondary}
             value={comment}
             onChangeText={setComment}
             multiline
@@ -56,15 +66,15 @@ export const ExtremeNudgeModal: React.FC<ExtremeNudgeModalProps> = ({
 
           <View style={styles.buttonRow}>
             <TouchableOpacity
-              style={styles.dismissButton}
+              style={[styles.dismissButton, { borderColor: colors.border }]}
               onPress={onDismiss}
               testID="extreme-nudge-dismiss"
             >
-              <Text style={styles.dismissButtonText}>Skip / Dismiss</Text>
+              <Text style={[styles.dismissButtonText, { color: colors.textSecondary }]}>Skip / Dismiss</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.saveButton}
+              style={[styles.saveButton, { backgroundColor: colors.primary }]}
               onPress={() => onSaveComment(comment)}
               testID="extreme-nudge-save"
             >
@@ -80,13 +90,12 @@ export const ExtremeNudgeModal: React.FC<ExtremeNudgeModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
   dialog: {
-    backgroundColor: '#ffffff',
     borderRadius: 16,
     padding: 20,
     width: '100%',
@@ -118,23 +127,18 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1f2328',
     marginBottom: 8,
   },
   message: {
     fontSize: 14,
-    color: '#57606a',
     lineHeight: 20,
     marginBottom: 16,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#d0d7de',
     borderRadius: 8,
     padding: 12,
     fontSize: 14,
-    color: '#1f2328',
-    backgroundColor: '#f6f8fa',
     textAlignVertical: 'top',
     minHeight: 80,
     marginBottom: 16,
@@ -149,18 +153,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#d0d7de',
   },
   dismissButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#57606a',
   },
   saveButton: {
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 8,
-    backgroundColor: '#0969da',
   },
   saveButtonText: {
     fontSize: 14,

@@ -25,12 +25,14 @@ import {
   isExtremeReading,
   resolveColorBand,
 } from '../../domain/thresholds';
+import { useTheme } from '../../state/ThemeContext';
 
 import { ExtremeNudgeModal } from './ExtremeNudgeModal';
 import { SlotPicker } from './SlotPicker';
 import { TagPicker } from './TagPicker';
 
 export default function EditScreen() {
+  const { colors } = useTheme();
   const [selectedSlot, setSelectedSlot] = useState<SlotCode>('BB');
   const [clinicalDate, setClinicalDate] = useState<string>(
     getClinicalDate(new Date())
@@ -214,25 +216,49 @@ export default function EditScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} testID="edit-screen">
-      <Text style={styles.headerTitle}>
+    <ScrollView
+      contentContainerStyle={[
+        styles.container,
+        { backgroundColor: colors.background },
+      ]}
+      testID="edit-screen"
+    >
+      <Text style={[styles.headerTitle, { color: colors.text }]}>
         {existingReading ? 'Edit Blood Glucose Entry' : 'Log Blood Glucose Entry'}
       </Text>
 
       {errorMessage && (
-        <View style={styles.errorContainer} testID="error-banner">
-          <Text style={styles.errorText}>{errorMessage}</Text>
+        <View
+          style={[
+            styles.errorContainer,
+            { backgroundColor: colors.errorBg, borderColor: colors.error },
+          ]}
+          testID="error-banner"
+        >
+          <Text style={[styles.errorText, { color: colors.error }]}>
+            {errorMessage}
+          </Text>
         </View>
       )}
 
       {/* Date Selector Input */}
       <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Clinical Date (YYYY-MM-DD)</Text>
+        <Text style={[styles.label, { color: colors.text }]}>
+          Clinical Date (YYYY-MM-DD)
+        </Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.border,
+              color: colors.text,
+            },
+          ]}
           value={clinicalDate}
           onChangeText={setClinicalDate}
           placeholder="YYYY-MM-DD"
+          placeholderTextColor={colors.textSecondary}
           testID="date-input"
         />
       </View>
@@ -242,12 +268,22 @@ export default function EditScreen() {
 
       {/* Glucose Value Input */}
       <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Glucose Reading (mg/dL)</Text>
+        <Text style={[styles.label, { color: colors.text }]}>
+          Glucose Reading (mg/dL)
+        </Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.border,
+              color: colors.text,
+            },
+          ]}
           value={valueInput}
           onChangeText={setValueInput}
           placeholder="e.g. 110"
+          placeholderTextColor={colors.textSecondary}
           keyboardType="number-pad"
           testID="value-input"
         />
@@ -262,12 +298,23 @@ export default function EditScreen() {
 
       {/* Free-text Comment Field */}
       <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Notes / Comments (Optional)</Text>
+        <Text style={[styles.label, { color: colors.text }]}>
+          Notes / Comments (Optional)
+        </Text>
         <TextInput
-          style={[styles.input, styles.multilineInput]}
+          style={[
+            styles.input,
+            styles.multilineInput,
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.border,
+              color: colors.text,
+            },
+          ]}
           value={commentInput}
           onChangeText={setCommentInput}
           placeholder="Add any notes about this reading..."
+          placeholderTextColor={colors.textSecondary}
           multiline
           numberOfLines={3}
           testID="comment-input"
@@ -277,7 +324,7 @@ export default function EditScreen() {
       {/* Action Buttons */}
       <View style={styles.actionContainer}>
         <TouchableOpacity
-          style={styles.saveButton}
+          style={[styles.saveButton, { backgroundColor: colors.primary }]}
           onPress={handleSave}
           testID="save-button"
         >
@@ -288,11 +335,16 @@ export default function EditScreen() {
 
         {existingReading && (
           <TouchableOpacity
-            style={styles.deleteButton}
+            style={[
+              styles.deleteButton,
+              { backgroundColor: colors.errorBg, borderColor: colors.error },
+            ]}
             onPress={handleDelete}
             testID="delete-button"
           >
-            <Text style={styles.deleteButtonText}>Delete Entry</Text>
+            <Text style={[styles.deleteButtonText, { color: colors.error }]}>
+              Delete Entry
+            </Text>
           </TouchableOpacity>
         )}
       </View>
@@ -313,17 +365,13 @@ export default function EditScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: '#ffffff',
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#1f2328',
     marginBottom: 16,
   },
   errorContainer: {
-    backgroundColor: '#ffebe9',
-    borderColor: '#ff8182',
     borderWidth: 1,
     borderRadius: 8,
     padding: 12,
@@ -331,7 +379,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 14,
-    color: '#cf222e',
     fontWeight: '500',
   },
   fieldContainer: {
@@ -340,18 +387,14 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 6,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#d0d7de',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
-    color: '#1f2328',
-    backgroundColor: '#ffffff',
   },
   multilineInput: {
     minHeight: 70,
@@ -362,7 +405,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   saveButton: {
-    backgroundColor: '#0969da',
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',
@@ -373,16 +415,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   deleteButton: {
-    backgroundColor: '#fff1f0',
-    borderColor: '#ff4d4f',
     borderWidth: 1,
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',
   },
   deleteButtonText: {
-    color: '#cf222e',
     fontSize: 16,
     fontWeight: '600',
   },
 });
+

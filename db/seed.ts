@@ -99,8 +99,9 @@ export async function seedDatabaseIfEmpty(): Promise<void> {
   );
   if (!existingSettings || existingSettings.count === 0) {
     await db.runAsync(
-      'INSERT OR IGNORE INTO settings (id, retention_duration_months, unit_system) VALUES (1, NULL, ?)',
-      ['mg/dL']
+      'INSERT OR IGNORE INTO settings (id, retention_duration_months, unit_system, theme_mode) VALUES (1, NULL, ?, ?)',
+      ['mg/dL', 'system']
     );
   }
+
 }

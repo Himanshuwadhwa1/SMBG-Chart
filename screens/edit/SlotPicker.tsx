@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SlotCode } from '../../db/types';
+import { useTheme } from '../../state/ThemeContext';
 
 export interface SlotInfo {
   code: SlotCode;
@@ -23,9 +24,11 @@ interface SlotPickerProps {
 }
 
 export const SlotPicker: React.FC<SlotPickerProps> = ({ selectedSlot, onSelectSlot }) => {
+  const { colors } = useTheme();
+
   return (
     <View style={styles.container} testID="slot-picker">
-      <Text style={styles.label}>Select Slot</Text>
+      <Text style={[styles.label, { color: colors.text }]}>Select Slot</Text>
       <View style={styles.grid}>
         {SLOTS.map((slot) => {
           const isSelected = selectedSlot === slot.code;
@@ -33,12 +36,23 @@ export const SlotPicker: React.FC<SlotPickerProps> = ({ selectedSlot, onSelectSl
             <TouchableOpacity
               key={slot.code}
               testID={`slot-option-${slot.code}`}
-              style={[styles.slotButton, isSelected && styles.selectedButton]}
+              style={[
+                styles.slotButton,
+                {
+                  backgroundColor: isSelected ? colors.primary : colors.surface,
+                  borderColor: isSelected ? colors.primary : colors.border,
+                },
+              ]}
               onPress={() => onSelectSlot(slot.code)}
               accessibilityRole="button"
               accessibilityState={{ selected: isSelected }}
             >
-              <Text style={[styles.buttonText, isSelected && styles.selectedButtonText]}>
+              <Text
+                style={[
+                  styles.buttonText,
+                  { color: isSelected ? '#ffffff' : colors.text },
+                ]}
+              >
                 {slot.code}
               </Text>
             </TouchableOpacity>
@@ -56,7 +70,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 8,
   },
   grid: {
@@ -69,22 +82,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#d0d7de',
-    backgroundColor: '#f6f8fa',
     alignItems: 'center',
     justifyContent: 'center',
     minWidth: 48,
   },
-  selectedButton: {
-    backgroundColor: '#0969da',
-    borderColor: '#0969da',
-  },
   buttonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#24292f',
-  },
-  selectedButtonText: {
-    color: '#ffffff',
   },
 });

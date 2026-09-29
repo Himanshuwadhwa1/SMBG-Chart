@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { getThresholdConfigs, updateThresholdConfig } from '../../db';
 import { ThresholdConfig, ThresholdConfigType } from '../../db/types';
+import { useTheme } from '../../state/ThemeContext';
 
 export const ThresholdEditor: React.FC = () => {
+  const { colors } = useTheme();
   const [configs, setConfigs] = useState<ThresholdConfig[]>([]);
   const [selectedType, setSelectedType] = useState<ThresholdConfigType>('pre_meal');
   const [formValues, setFormValues] = useState<{
@@ -111,15 +113,31 @@ export const ThresholdEditor: React.FC = () => {
   ];
 
   return (
-    <View style={styles.container} testID="threshold-editor">
-      <Text style={styles.sectionTitle}>Threshold Config Editor</Text>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.card, borderColor: colors.border },
+      ]}
+      testID="threshold-editor"
+    >
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Threshold Config Editor</Text>
 
       {message && (
         <View
-          style={[styles.messageBanner, message.isError ? styles.errorBanner : styles.successBanner]}
+          style={[
+            styles.messageBanner,
+            message.isError
+              ? { backgroundColor: colors.errorBg, borderColor: colors.error }
+              : { backgroundColor: colors.successBg, borderColor: colors.success },
+          ]}
           testID="threshold-message"
         >
-          <Text style={[styles.messageText, message.isError ? styles.errorText : styles.successText]}>
+          <Text
+            style={[
+              styles.messageText,
+              { color: message.isError ? colors.error : colors.success },
+            ]}
+          >
             {message.text}
           </Text>
         </View>
@@ -133,10 +151,23 @@ export const ThresholdEditor: React.FC = () => {
             <TouchableOpacity
               key={t.id}
               testID={`config-tab-${t.id}`}
-              style={[styles.tabButton, isSelected && styles.selectedTabButton]}
+              style={[
+                styles.tabButton,
+                {
+                  backgroundColor: isSelected ? colors.primary : colors.background,
+                  borderColor: isSelected ? colors.primary : colors.border,
+                },
+              ]}
               onPress={() => setSelectedType(t.id)}
             >
-              <Text style={[styles.tabText, isSelected && styles.selectedTabText]}>{t.label}</Text>
+              <Text
+                style={[
+                  styles.tabText,
+                  { color: isSelected ? '#ffffff' : colors.text },
+                ]}
+              >
+                {t.label}
+              </Text>
             </TouchableOpacity>
           );
         })}
@@ -144,12 +175,21 @@ export const ThresholdEditor: React.FC = () => {
 
       {/* 8 Boundary Input Fields */}
       <View style={styles.formGrid}>
-        <Text style={styles.subHeader}>Low-Side Boundaries (Ascending)</Text>
+        <Text style={[styles.subHeader, { color: colors.textSecondary }]}>
+          Low-Side Boundaries (Ascending)
+        </Text>
         <View style={styles.fieldRow}>
           <View style={styles.field}>
-            <Text style={styles.fieldLabel}>Bad Low (&lt;)</Text>
+            <Text style={[styles.fieldLabel, { color: colors.text }]}>Bad Low (&lt;)</Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.background,
+                  borderColor: colors.border,
+                  color: colors.text,
+                },
+              ]}
               value={formValues.bad_low}
               onChangeText={(val) => setFormValues((prev) => ({ ...prev, bad_low: val }))}
               keyboardType="number-pad"
@@ -157,9 +197,16 @@ export const ThresholdEditor: React.FC = () => {
             />
           </View>
           <View style={styles.field}>
-            <Text style={styles.fieldLabel}>Not-so-bad Low</Text>
+            <Text style={[styles.fieldLabel, { color: colors.text }]}>Not-so-bad Low</Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.background,
+                  borderColor: colors.border,
+                  color: colors.text,
+                },
+              ]}
               value={formValues.notsobad_low}
               onChangeText={(val) => setFormValues((prev) => ({ ...prev, notsobad_low: val }))}
               keyboardType="number-pad"
@@ -167,9 +214,16 @@ export const ThresholdEditor: React.FC = () => {
             />
           </View>
           <View style={styles.field}>
-            <Text style={styles.fieldLabel}>Okayish Low</Text>
+            <Text style={[styles.fieldLabel, { color: colors.text }]}>Okayish Low</Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.background,
+                  borderColor: colors.border,
+                  color: colors.text,
+                },
+              ]}
               value={formValues.okayish_low}
               onChangeText={(val) => setFormValues((prev) => ({ ...prev, okayish_low: val }))}
               keyboardType="number-pad"
@@ -177,9 +231,16 @@ export const ThresholdEditor: React.FC = () => {
             />
           </View>
           <View style={styles.field}>
-            <Text style={styles.fieldLabel}>OK Low (Min Target)</Text>
+            <Text style={[styles.fieldLabel, { color: colors.text }]}>OK Low (Min Target)</Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.background,
+                  borderColor: colors.border,
+                  color: colors.text,
+                },
+              ]}
               value={formValues.ok_low}
               onChangeText={(val) => setFormValues((prev) => ({ ...prev, ok_low: val }))}
               keyboardType="number-pad"
@@ -188,12 +249,21 @@ export const ThresholdEditor: React.FC = () => {
           </View>
         </View>
 
-        <Text style={styles.subHeader}>High-Side Boundaries (Ascending)</Text>
+        <Text style={[styles.subHeader, { color: colors.textSecondary }]}>
+          High-Side Boundaries (Ascending)
+        </Text>
         <View style={styles.fieldRow}>
           <View style={styles.field}>
-            <Text style={styles.fieldLabel}>OK High (Max Target)</Text>
+            <Text style={[styles.fieldLabel, { color: colors.text }]}>OK High (Max Target)</Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.background,
+                  borderColor: colors.border,
+                  color: colors.text,
+                },
+              ]}
               value={formValues.ok_high}
               onChangeText={(val) => setFormValues((prev) => ({ ...prev, ok_high: val }))}
               keyboardType="number-pad"
@@ -201,9 +271,16 @@ export const ThresholdEditor: React.FC = () => {
             />
           </View>
           <View style={styles.field}>
-            <Text style={styles.fieldLabel}>Okayish High</Text>
+            <Text style={[styles.fieldLabel, { color: colors.text }]}>Okayish High</Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.background,
+                  borderColor: colors.border,
+                  color: colors.text,
+                },
+              ]}
               value={formValues.okayish_high}
               onChangeText={(val) => setFormValues((prev) => ({ ...prev, okayish_high: val }))}
               keyboardType="number-pad"
@@ -211,9 +288,16 @@ export const ThresholdEditor: React.FC = () => {
             />
           </View>
           <View style={styles.field}>
-            <Text style={styles.fieldLabel}>Not-so-bad High</Text>
+            <Text style={[styles.fieldLabel, { color: colors.text }]}>Not-so-bad High</Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.background,
+                  borderColor: colors.border,
+                  color: colors.text,
+                },
+              ]}
               value={formValues.notsobad_high}
               onChangeText={(val) => setFormValues((prev) => ({ ...prev, notsobad_high: val }))}
               keyboardType="number-pad"
@@ -221,9 +305,16 @@ export const ThresholdEditor: React.FC = () => {
             />
           </View>
           <View style={styles.field}>
-            <Text style={styles.fieldLabel}>Bad High (&gt;)</Text>
+            <Text style={[styles.fieldLabel, { color: colors.text }]}>Bad High (&gt;)</Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.background,
+                  borderColor: colors.border,
+                  color: colors.text,
+                },
+              ]}
               value={formValues.bad_high}
               onChangeText={(val) => setFormValues((prev) => ({ ...prev, bad_high: val }))}
               keyboardType="number-pad"
@@ -233,7 +324,11 @@ export const ThresholdEditor: React.FC = () => {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.saveButton} onPress={handleSave} testID="save-thresholds-button">
+      <TouchableOpacity
+        style={[styles.saveButton, { backgroundColor: colors.primary }]}
+        onPress={handleSave}
+        testID="save-thresholds-button"
+      >
         <Text style={styles.saveButtonText}>Save Threshold Boundaries</Text>
       </TouchableOpacity>
     </View>
@@ -243,16 +338,13 @@ export const ThresholdEditor: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     marginVertical: 12,
-    backgroundColor: '#ffffff',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#d0d7de',
     padding: 16,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1f2328',
     marginBottom: 12,
   },
   messageBanner: {
@@ -261,23 +353,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderWidth: 1,
   },
-  errorBanner: {
-    backgroundColor: '#ffebe9',
-    borderColor: '#ff8182',
-  },
-  successBanner: {
-    backgroundColor: '#dafbe1',
-    borderColor: '#4ac26b',
-  },
   messageText: {
     fontSize: 13,
     fontWeight: '500',
-  },
-  errorText: {
-    color: '#cf222e',
-  },
-  successText: {
-    color: '#1a7f37',
   },
   tabRow: {
     flexDirection: 'row',
@@ -289,21 +367,10 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 6,
-    backgroundColor: '#f6f8fa',
     borderWidth: 1,
-    borderColor: '#d0d7de',
-  },
-  selectedTabButton: {
-    backgroundColor: '#0969da',
-    borderColor: '#0969da',
   },
   tabText: {
     fontSize: 13,
-    color: '#24292f',
-  },
-  selectedTabText: {
-    color: '#ffffff',
-    fontWeight: '600',
   },
   formGrid: {
     marginBottom: 16,
@@ -311,7 +378,6 @@ const styles = StyleSheet.create({
   subHeader: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#57606a',
     marginTop: 8,
     marginBottom: 8,
   },
@@ -326,20 +392,16 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: 12,
-    color: '#333',
     marginBottom: 4,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#d0d7de',
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 6,
     fontSize: 14,
-    backgroundColor: '#ffffff',
   },
   saveButton: {
-    backgroundColor: '#0969da',
     paddingVertical: 12,
     borderRadius: 6,
     alignItems: 'center',
@@ -350,3 +412,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+

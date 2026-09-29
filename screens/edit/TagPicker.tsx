@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Tag } from '../../db/types';
+import { useTheme } from '../../state/ThemeContext';
 
 interface TagPickerProps {
   activeTags: Tag[];
@@ -13,13 +14,15 @@ export const TagPicker: React.FC<TagPickerProps> = ({
   selectedTagIds,
   onToggleTag,
 }) => {
+  const { colors } = useTheme();
+
   if (activeTags.length === 0) {
     return null;
   }
 
   return (
     <View style={styles.container} testID="tag-picker">
-      <Text style={styles.label}>Tags (Optional)</Text>
+      <Text style={[styles.label, { color: colors.text }]}>Tags (Optional)</Text>
       <View style={styles.chipContainer}>
         {activeTags.map((tag) => {
           const isSelected = selectedTagIds.includes(tag.id);
@@ -27,12 +30,24 @@ export const TagPicker: React.FC<TagPickerProps> = ({
             <TouchableOpacity
               key={tag.id}
               testID={`tag-chip-${tag.id}`}
-              style={[styles.chip, isSelected && styles.selectedChip]}
+              style={[
+                styles.chip,
+                {
+                  backgroundColor: isSelected ? colors.primaryLight : colors.surface,
+                  borderColor: isSelected ? colors.primary : colors.border,
+                },
+              ]}
               onPress={() => onToggleTag(tag.id)}
               accessibilityRole="button"
               accessibilityState={{ selected: isSelected }}
             >
-              <Text style={[styles.chipText, isSelected && styles.selectedChipText]}>
+              <Text
+                style={[
+                  styles.chipText,
+                  { color: isSelected ? colors.primary : colors.textSecondary },
+                  isSelected && styles.selectedChipText,
+                ]}
+              >
                 {tag.name}
               </Text>
             </TouchableOpacity>
@@ -50,7 +65,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 8,
   },
   chipContainer: {
@@ -63,19 +77,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#d0d7de',
-    backgroundColor: '#ffffff',
-  },
-  selectedChip: {
-    backgroundColor: '#ddf4ff',
-    borderColor: '#0969da',
   },
   chipText: {
     fontSize: 13,
-    color: '#57606a',
   },
   selectedChipText: {
-    color: '#0969da',
     fontWeight: '600',
   },
 });

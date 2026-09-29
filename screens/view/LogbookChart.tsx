@@ -9,6 +9,7 @@ import {
 
 import { ReadingWithTags, SlotCode, ThresholdConfig } from '../../db/types';
 import { getConfigTypeForSlot, resolveColorBand } from '../../domain/thresholds';
+import { useTheme } from '../../state/ThemeContext';
 import { getBandStyle } from './colorBands';
 
 interface LogbookChartProps {
@@ -22,6 +23,7 @@ export const LogbookChart: React.FC<LogbookChartProps> = ({
   readings,
   thresholdConfigs,
 }) => {
+  const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height || width >= 600;
 
@@ -53,9 +55,17 @@ export const LogbookChart: React.FC<LogbookChartProps> = ({
 
   if (dates.length === 0) {
     return (
-      <View style={styles.emptyContainer} testID="empty-chart">
-        <Text style={styles.emptyTitle}>No Readings Found</Text>
-        <Text style={styles.emptySubtitle}>
+      <View
+        style={[
+          styles.emptyContainer,
+          { backgroundColor: colors.card, borderColor: colors.border },
+        ]}
+        testID="empty-chart"
+      >
+        <Text style={[styles.emptyTitle, { color: colors.text }]}>
+          No Readings Found
+        </Text>
+        <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
           No readings logged for the selected date range. Use the Log / Edit screen to add entries.
         </Text>
       </View>
@@ -64,7 +74,11 @@ export const LogbookChart: React.FC<LogbookChartProps> = ({
 
   const renderCellContent = (reading: ReadingWithTags | undefined) => {
     if (!reading) {
-      return <Text style={styles.emptyCellText}>—</Text>;
+      return (
+        <Text style={[styles.emptyCellText, { color: colors.textSecondary }]}>
+          —
+        </Text>
+      );
     }
 
     const configType = getConfigTypeForSlot(reading.slot);
@@ -91,18 +105,36 @@ export const LogbookChart: React.FC<LogbookChartProps> = ({
   };
 
   return (
-    <View style={styles.container} testID="logbook-chart">
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.card, borderColor: colors.border },
+      ]}
+      testID="logbook-chart"
+    >
       <ScrollView horizontal={!isLandscape} contentContainerStyle={styles.scrollContent}>
         <View style={styles.table}>
           {/* Table Header */}
-          <View style={styles.headerRow}>
-            <Text style={[styles.headerCell, styles.dateColumn]}>Clinical Date</Text>
+          <View
+            style={[
+              styles.headerRow,
+              { backgroundColor: colors.background, borderBottomColor: colors.border },
+            ]}
+          >
+            <Text style={[styles.headerCell, styles.dateColumn, { color: colors.text }]}>
+              Clinical Date
+            </Text>
             {ALL_SLOTS.map((slot) => (
-              <Text key={slot} style={[styles.headerCell, styles.slotColumn]}>
+              <Text
+                key={slot}
+                style={[styles.headerCell, styles.slotColumn, { color: colors.text }]}
+              >
                 {slot}
               </Text>
             ))}
-            <Text style={[styles.headerCell, styles.notesColumn]}>Tags & Remarks</Text>
+            <Text style={[styles.headerCell, styles.notesColumn, { color: colors.text }]}>
+              Tags & Remarks
+            </Text>
           </View>
 
           {/* Table Rows */}
@@ -111,8 +143,14 @@ export const LogbookChart: React.FC<LogbookChartProps> = ({
             const notes = dateComments[dateStr] ? dateComments[dateStr].join(' • ') : '';
 
             return (
-              <View key={dateStr} style={styles.dataRow} testID={`date-row-${dateStr}`}>
-                <Text style={[styles.dateCellText, styles.dateColumn]}>{dateStr}</Text>
+              <View
+                key={dateStr}
+                style={[styles.dataRow, { borderBottomColor: colors.border }]}
+                testID={`date-row-${dateStr}`}
+              >
+                <Text style={[styles.dateCellText, styles.dateColumn, { color: colors.text }]}>
+                  {dateStr}
+                </Text>
 
                 {ALL_SLOTS.map((slot) => (
                   <View key={slot} style={[styles.cell, styles.slotColumn]}>
@@ -121,7 +159,7 @@ export const LogbookChart: React.FC<LogbookChartProps> = ({
                 ))}
 
                 <Text
-                  style={[styles.notesCellText, styles.notesColumn]}
+                  style={[styles.notesCellText, styles.notesColumn, { color: colors.textSecondary }]}
                   numberOfLines={2}
                 >
                   {notes || '—'}
@@ -138,10 +176,8 @@ export const LogbookChart: React.FC<LogbookChartProps> = ({
 const styles = StyleSheet.create({
   container: {
     marginVertical: 12,
-    backgroundColor: '#ffffff',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#d0d7de',
     overflow: 'hidden',
   },
   scrollContent: {
@@ -152,22 +188,18 @@ const styles = StyleSheet.create({
   },
   headerRow: {
     flexDirection: 'row',
-    backgroundColor: '#f6f8fa',
     borderBottomWidth: 1,
-    borderBottomColor: '#d0d7de',
     paddingVertical: 10,
     alignItems: 'center',
   },
   headerCell: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#24292f',
     textAlign: 'center',
   },
   dataRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f2f5',
     paddingVertical: 8,
     alignItems: 'center',
   },
@@ -193,16 +225,13 @@ const styles = StyleSheet.create({
   },
   emptyCellText: {
     fontSize: 14,
-    color: '#8c959f',
   },
   dateCellText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#1f2328',
   },
   notesCellText: {
     fontSize: 12,
-    color: '#57606a',
   },
   valueBadge: {
     paddingVertical: 4,
@@ -221,20 +250,19 @@ const styles = StyleSheet.create({
     padding: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f6f8fa',
     borderRadius: 8,
+    borderWidth: 1,
     marginVertical: 16,
   },
   emptyTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#24292f',
     marginBottom: 6,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#57606a',
     textAlign: 'center',
     lineHeight: 20,
   },
 });
+

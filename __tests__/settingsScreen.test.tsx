@@ -16,6 +16,9 @@ import { RetentionSettings } from '../screens/settings/RetentionSettings';
 import SettingsScreen from '../screens/settings/SettingsScreen';
 import { TagManager } from '../screens/settings/TagManager';
 import { ThresholdEditor } from '../screens/settings/ThresholdEditor';
+import { ThemeProvider } from '../state/ThemeContext';
+
+
 
 // @ts-ignore
 global.IS_REACT_ACT_ENVIRONMENT = true;
@@ -156,16 +159,39 @@ describe('Phase 5 — Settings Component & Logic Tests', () => {
     expect(remaining).toHaveLength(0);
   });
 
-  it('5. SettingsScreen renders all section cards', async () => {
+  it('5. SettingsScreen renders all section cards including ThemeSelector', async () => {
     let tree: TestRenderer.ReactTestRenderer;
     await act(async () => {
       tree = TestRenderer.create(<SettingsScreen />);
     });
 
     expect(tree!.root.findByProps({ testID: 'settings-screen' })).toBeTruthy();
+    expect(tree!.root.findByProps({ testID: 'theme-selector' })).toBeTruthy();
     expect(tree!.root.findByProps({ testID: 'unit-system-card' })).toBeTruthy();
     expect(tree!.root.findByProps({ testID: 'threshold-editor' })).toBeTruthy();
     expect(tree!.root.findByProps({ testID: 'tag-manager' })).toBeTruthy();
     expect(tree!.root.findByProps({ testID: 'retention-settings' })).toBeTruthy();
   });
+
+  it('6. ThemeSelector toggles and persists theme_mode setting', async () => {
+    let tree: TestRenderer.ReactTestRenderer;
+    await act(async () => {
+      tree = TestRenderer.create(
+        <ThemeProvider>
+          <SettingsScreen />
+        </ThemeProvider>
+      );
+    });
+
+    const darkOpt = tree!.root.findByProps({ testID: 'theme-option-dark' });
+    await act(async () => {
+      darkOpt.props.onPress();
+    });
+
+    const { getSettings } = require('../db');
+    const settings = await getSettings();
+    expect(settings.theme_mode).toBe('dark');
+  });
+
 });
+

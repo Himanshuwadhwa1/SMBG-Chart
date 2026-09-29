@@ -61,10 +61,22 @@ export async function initDatabase(): Promise<void> {
     CREATE TABLE IF NOT EXISTS settings (
       id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1),
       retention_duration_months INTEGER,
-      unit_system TEXT NOT NULL DEFAULT 'mg/dL'
+      unit_system TEXT NOT NULL DEFAULT 'mg/dL',
+      theme_mode TEXT NOT NULL DEFAULT 'system'
     );
 
     CREATE INDEX IF NOT EXISTS idx_readings_clinical_date ON readings(clinical_date);
     CREATE INDEX IF NOT EXISTS idx_readings_slot ON readings(slot);
   `);
+
+  // Migration check: Ensure theme_mode column exists in pre-existing settings tables
+  try {
+    const tableInfo = await db.getAllAsync<{ name: string }>('PRAGMA table_info(settings);');
+    const hasThemeMode = tableInfo.some((col) => col.name === 'theme_mode');
+    if (!hasThemeMode) {
+      await db.execAsync("ALTER TABLE settings ADD COLUMN theme_mode TEXT NOT NULL DEFAULT 'system';");
+    }
+  } catch (err) {
+    console.error('Migration error checking theme_mode column:', err);
+  }
 }

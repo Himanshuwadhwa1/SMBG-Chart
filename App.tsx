@@ -8,6 +8,7 @@ import { initDb } from './db';
 import EditScreen from './screens/edit/EditScreen';
 import ViewScreen from './screens/view/ViewScreen';
 import SettingsScreen from './screens/settings/SettingsScreen';
+import { ThemeProvider, useTheme } from './state/ThemeContext';
 
 export type RootTabParamList = {
   Edit: undefined;
@@ -16,6 +17,61 @@ export type RootTabParamList = {
 };
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
+
+function AppNavigator() {
+  const { colors } = useTheme();
+
+  return (
+    <NavigationContainer>
+      <Tab.Navigator
+        initialRouteName="Edit"
+        screenOptions={{
+          headerStyle: { backgroundColor: colors.surface },
+          headerTitleStyle: { color: colors.text, fontWeight: 'bold' },
+          tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.textSecondary,
+        }}
+      >
+        <Tab.Screen 
+          name="Edit" 
+          component={EditScreen} 
+          options={{ title: 'Log / Edit' }} 
+        />
+        <Tab.Screen 
+          name="View" 
+          component={ViewScreen} 
+          options={{ title: 'SMBG Chart' }} 
+        />
+        <Tab.Screen 
+          name="Settings" 
+          component={SettingsScreen} 
+          options={{ title: 'Settings' }} 
+        />
+      </Tab.Navigator>
+    </NavigationContainer>
+  );
+}
+
+function LoadingScreen({ error }: { error?: string | null }) {
+  const { colors } = useTheme();
+
+  if (error) {
+    return (
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorTitle, { color: colors.error }]}>Initialization Error</Text>
+        <Text style={[styles.errorText, { color: colors.text }]}>{error}</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={[styles.center, { backgroundColor: colors.background }]}>
+      <ActivityIndicator size="large" color={colors.primary} />
+      <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Initializing database...</Text>
+    </View>
+  );
+}
 
 export default function App() {
   const [dbReady, setDbReady] = useState(false);
@@ -30,45 +86,11 @@ export default function App() {
       });
   }, []);
 
-  if (initError) {
-    return (
-      <View style={styles.center}>
-        <Text style={styles.errorTitle}>Initialization Error</Text>
-        <Text style={styles.errorText}>{initError}</Text>
-      </View>
-    );
-  }
-
-  if (!dbReady) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0066cc" />
-        <Text style={styles.loadingText}>Initializing database...</Text>
-      </View>
-    );
-  }
-
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <Tab.Navigator initialRouteName="Edit">
-          <Tab.Screen 
-            name="Edit" 
-            component={EditScreen} 
-            options={{ title: 'Log / Edit' }} 
-          />
-          <Tab.Screen 
-            name="View" 
-            component={ViewScreen} 
-            options={{ title: 'SMBG Chart' }} 
-          />
-          <Tab.Screen 
-            name="Settings" 
-            component={SettingsScreen} 
-            options={{ title: 'Settings' }} 
-          />
-        </Tab.Navigator>
-      </NavigationContainer>
+      <ThemeProvider>
+        {!dbReady ? <LoadingScreen error={initError} /> : <AppNavigator />}
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }
@@ -79,22 +101,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#fff',
   },
   loadingText: {
     marginTop: 12,
     fontSize: 14,
-    color: '#666',
   },
   errorTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#cc0000',
     marginBottom: 8,
   },
   errorText: {
     fontSize: 14,
-    color: '#333',
     textAlign: 'center',
   },
 });

@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { deleteAllReadings, getSettings, updateSettings } from '../../db';
+import { useTheme } from '../../state/ThemeContext';
 
 export const RetentionSettings: React.FC = () => {
+  const { colors } = useTheme();
   const [retentionMonths, setRetentionMonths] = useState<number | null>(null);
   const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
 
@@ -69,21 +71,41 @@ export const RetentionSettings: React.FC = () => {
   ];
 
   return (
-    <View style={styles.container} testID="retention-settings">
-      <Text style={styles.sectionTitle}>Data Retention &amp; Manual Cleanup</Text>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.card, borderColor: colors.border },
+      ]}
+      testID="retention-settings"
+    >
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>
+        Data Retention &amp; Manual Cleanup
+      </Text>
 
       {message && (
         <View
-          style={[styles.messageBanner, message.isError ? styles.errorBanner : styles.successBanner]}
+          style={[
+            styles.messageBanner,
+            message.isError
+              ? { backgroundColor: colors.errorBg, borderColor: colors.error }
+              : { backgroundColor: colors.successBg, borderColor: colors.success },
+          ]}
           testID="retention-message"
         >
-          <Text style={[styles.messageText, message.isError ? styles.errorText : styles.successText]}>
+          <Text
+            style={[
+              styles.messageText,
+              { color: message.isError ? colors.error : colors.success },
+            ]}
+          >
             {message.text}
           </Text>
         </View>
       )}
 
-      <Text style={styles.label}>Automatic Retention Duration</Text>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>
+        Automatic Retention Duration
+      </Text>
       <View style={styles.optionGrid}>
         {retentionOptions.map((opt) => {
           const isSelected = retentionMonths === opt.value;
@@ -91,10 +113,21 @@ export const RetentionSettings: React.FC = () => {
             <TouchableOpacity
               key={String(opt.value)}
               testID={`retention-opt-${opt.value ?? 'null'}`}
-              style={[styles.optionButton, isSelected && styles.selectedOptionButton]}
+              style={[
+                styles.optionButton,
+                {
+                  backgroundColor: isSelected ? colors.primary : colors.background,
+                  borderColor: isSelected ? colors.primary : colors.border,
+                },
+              ]}
               onPress={() => handleSelectRetention(opt.value)}
             >
-              <Text style={[styles.optionText, isSelected && styles.selectedOptionText]}>
+              <Text
+                style={[
+                  styles.optionText,
+                  { color: isSelected ? '#ffffff' : colors.text },
+                ]}
+              >
                 {opt.label}
               </Text>
             </TouchableOpacity>
@@ -102,19 +135,24 @@ export const RetentionSettings: React.FC = () => {
         })}
       </View>
 
-      <Text style={styles.warningNote}>
+      <Text style={[styles.warningNote, { color: colors.textSecondary }]}>
         Data deletion only executes on app open after your explicit confirmation.
       </Text>
 
       {/* Manual Clean Now */}
-      <View style={styles.dangerZone}>
-        <Text style={styles.dangerTitle}>Manual Cleanup</Text>
+      <View style={[styles.dangerZone, { borderTopColor: colors.border }]}>
+        <Text style={[styles.dangerTitle, { color: colors.error }]}>Manual Cleanup</Text>
         <TouchableOpacity
-          style={styles.cleanButton}
+          style={[
+            styles.cleanButton,
+            { backgroundColor: colors.errorBg, borderColor: colors.error },
+          ]}
           onPress={handleCleanNow}
           testID="clean-now-button"
         >
-          <Text style={styles.cleanButtonText}>Clean Now (Delete All Data)</Text>
+          <Text style={[styles.cleanButtonText, { color: colors.error }]}>
+            Clean Now (Delete All Data)
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -124,22 +162,18 @@ export const RetentionSettings: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     marginVertical: 12,
-    backgroundColor: '#ffffff',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#d0d7de',
     padding: 16,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1f2328',
     marginBottom: 12,
   },
   label: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#57606a',
     marginBottom: 8,
   },
   messageBanner: {
@@ -148,23 +182,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderWidth: 1,
   },
-  errorBanner: {
-    backgroundColor: '#ffebe9',
-    borderColor: '#ff8182',
-  },
-  successBanner: {
-    backgroundColor: '#dafbe1',
-    borderColor: '#4ac26b',
-  },
   messageText: {
     fontSize: 13,
     fontWeight: '500',
-  },
-  errorText: {
-    color: '#cf222e',
-  },
-  successText: {
-    color: '#1a7f37',
   },
   optionGrid: {
     flexDirection: 'row',
@@ -177,49 +197,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#d0d7de',
-    backgroundColor: '#f6f8fa',
-  },
-  selectedOptionButton: {
-    backgroundColor: '#0969da',
-    borderColor: '#0969da',
   },
   optionText: {
     fontSize: 13,
-    color: '#24292f',
-  },
-  selectedOptionText: {
-    color: '#ffffff',
-    fontWeight: '600',
   },
   warningNote: {
     fontSize: 12,
-    color: '#57606a',
     marginBottom: 16,
     fontStyle: 'italic',
   },
   dangerZone: {
     borderTopWidth: 1,
-    borderTopColor: '#f0f2f5',
     paddingTop: 12,
   },
   dangerTitle: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#cf222e',
     marginBottom: 8,
   },
   cleanButton: {
-    backgroundColor: '#fff1f0',
-    borderColor: '#ff4d4f',
     borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 6,
     alignItems: 'center',
   },
   cleanButtonText: {
-    color: '#cf222e',
     fontSize: 14,
     fontWeight: '600',
   },
 });
+
