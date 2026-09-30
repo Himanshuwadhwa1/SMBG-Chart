@@ -36,12 +36,12 @@ function AppNavigator() {
         <Tab.Screen 
           name="Edit" 
           component={EditScreen} 
-          options={{ title: 'Log / Edit' }} 
+          options={{ title: 'Log' }} 
         />
         <Tab.Screen 
           name="View" 
           component={ViewScreen} 
-          options={{ title: 'SMBG Chart' }} 
+          options={{ title: 'View Chart' }} 
         />
         <Tab.Screen 
           name="Settings" 

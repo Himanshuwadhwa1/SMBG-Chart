@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   table: {
-    minWidth: 720,
+    minWidth: '100%',
   },
   headerRow: {
     flexDirection: 'row',
