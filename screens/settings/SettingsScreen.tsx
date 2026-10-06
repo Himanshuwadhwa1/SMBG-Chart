@@ -12,7 +12,11 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView
-      contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}
+      style={{ flex: 1, backgroundColor: colors.background }}
+      contentContainerStyle={[
+        styles.container,
+        { flexGrow: 1, backgroundColor: colors.background, paddingBottom: 90 },
+      ]}
       testID="settings-screen"
     >
       <Text style={[styles.title, { color: colors.text }]}>App Settings</Text>

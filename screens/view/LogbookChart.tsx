@@ -23,9 +23,10 @@ export const LogbookChart: React.FC<LogbookChartProps> = ({
   readings,
   thresholdConfigs,
 }) => {
-  const { colors } = useTheme();
+  const { colors, activeTheme } = useTheme();
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height || width >= 600;
+  const isDark = activeTheme === 'dark';
 
   // Group readings by clinical_date
   const groupedByDate: Record<string, Record<SlotCode, ReadingWithTags>> = {};
@@ -58,14 +59,17 @@ export const LogbookChart: React.FC<LogbookChartProps> = ({
       <View
         style={[
           styles.emptyContainer,
-          { backgroundColor: colors.card, borderColor: colors.border },
+          {
+            backgroundColor: isDark ? '#000000' : colors.card,
+            borderColor: isDark ? '#30363d' : colors.border,
+          },
         ]}
         testID="empty-chart"
       >
-        <Text style={[styles.emptyTitle, { color: colors.text }]}>
+        <Text style={[styles.emptyTitle, { color: isDark ? '#ffffff' : colors.text }]}>
           No Readings Found
         </Text>
-        <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
+        <Text style={[styles.emptySubtitle, { color: isDark ? '#8b949e' : colors.textSecondary }]}>
           No readings logged for the selected date range. Use the Log / Edit screen to add entries.
         </Text>
       </View>

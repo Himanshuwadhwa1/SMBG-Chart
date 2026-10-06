@@ -217,15 +217,21 @@ export default function EditScreen() {
 
   return (
     <ScrollView
+      style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={[
         styles.container,
-        { backgroundColor: colors.background },
+        { flexGrow: 1, backgroundColor: colors.background, paddingBottom: 90 },
       ]}
       testID="edit-screen"
     >
-      <Text style={[styles.headerTitle, { color: colors.text }]}>
-        {existingReading ? 'Edit Blood Glucose Entry' : 'Log Blood Glucose Entry'}
-      </Text>
+      <View style={styles.headerContainer}>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>
+          {existingReading ? 'Edit Blood Glucose Entry' : 'Log New Blood Glucose Entry'}
+        </Text>
+        <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
+          Select clinical date, slot, and glucose value to update your logbook.
+        </Text>
+      </View>
 
       {errorMessage && (
         <View
@@ -366,10 +372,18 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
   },
+  headerContainer: {
+    marginBottom: 16,
+  },
   headerTitle: {
     fontSize: 22,
     fontWeight: '700',
-    marginBottom: 16,
+    letterSpacing: -0.3,
+  },
+  headerSubtitle: {
+    fontSize: 13,
+    marginTop: 4,
+    lineHeight: 18,
   },
   errorContainer: {
     borderWidth: 1,

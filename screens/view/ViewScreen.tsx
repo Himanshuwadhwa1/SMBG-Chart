@@ -72,9 +72,10 @@ export default function ViewScreen() {
 
   return (
     <ScrollView
+      style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={[
         styles.container,
-        { backgroundColor: colors.background },
+        { flexGrow: 1, backgroundColor: colors.background, paddingBottom: 90 },
       ]}
       testID="view-screen"
     >
