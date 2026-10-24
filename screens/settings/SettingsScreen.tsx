@@ -2,6 +2,7 @@ import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '../../state/ThemeContext';
+import { ExportSettings } from './ExportSettings';
 import { RetentionSettings } from './RetentionSettings';
 import { TagManager } from './TagManager';
 import { ThemeSelector } from './ThemeSelector';
@@ -37,6 +38,9 @@ export default function SettingsScreen() {
           <Text style={[styles.unitBadgeText, { color: colors.primary }]}>mg/dL (v1 Default)</Text>
         </View>
       </View>
+
+      {/* Export Logbook Data */}
+      <ExportSettings />
 
       {/* Threshold Config Editor */}
       <ThresholdEditor />
