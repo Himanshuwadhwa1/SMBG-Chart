@@ -9,6 +9,7 @@ import { configureNotificationHandler } from './notifications';
 import EditScreen from './screens/edit/EditScreen';
 import ViewScreen from './screens/view/ViewScreen';
 import SettingsScreen from './screens/settings/SettingsScreen';
+import { ErrorBoundary } from './logging';
 import { RetentionFlowModal } from './screens/settings/RetentionFlowModal';
 import { ThemeProvider, useTheme } from './state/ThemeContext';
 
@@ -301,11 +302,13 @@ export default function App() {
   }, []);
 
   return (
-    <SafeAreaProvider>
-      <ThemeProvider>
-        {!dbReady ? <LoadingScreen error={initError} /> : <AppNavigator />}
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <ErrorBoundary>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          {!dbReady ? <LoadingScreen error={initError} /> : <AppNavigator />}
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 }
 
