@@ -64,3 +64,53 @@ export function evaluateRetentionDeadline(
     deadlineTimestamp,
   };
 }
+
+export interface RetentionNotificationPlan {
+  shouldSchedule: boolean;
+  triggerTimestamp: number | null;
+  reason: 'approaching_warning' | 'deadline_now' | 'none';
+}
+
+/**
+ * Calculates the notification scheduling plan based on retention deadline and current time.
+ * If the warning threshold is in the future, schedules for that warning threshold timestamp.
+ * If already inside the warning window (<= warningThresholdDays remaining), schedules for the exact deadline.
+ * If already expired or not configured, shouldSchedule is false.
+ */
+export function calculateRetentionNotificationPlan(
+  retentionDurationMonths: number | null,
+  oldestReadingTimestamp: number | null,
+  currentTimestamp: number = Date.now(),
+  warningThresholdDays: number = 7
+): RetentionNotificationPlan {
+  const status = evaluateRetentionDeadline(
+    retentionDurationMonths,
+    oldestReadingTimestamp,
+    currentTimestamp,
+    warningThresholdDays
+  );
+
+  if (!status.isConfigured || status.deadlineTimestamp === null || status.isExpired) {
+    return {
+      shouldSchedule: false,
+      triggerTimestamp: null,
+      reason: 'none',
+    };
+  }
+
+  const warningTimestamp = status.deadlineTimestamp - warningThresholdDays * MS_PER_DAY;
+
+  if (currentTimestamp < warningTimestamp) {
+    return {
+      shouldSchedule: true,
+      triggerTimestamp: warningTimestamp,
+      reason: 'approaching_warning',
+    };
+  }
+
+  return {
+    shouldSchedule: true,
+    triggerTimestamp: status.deadlineTimestamp,
+    reason: 'deadline_now',
+  };
+}

@@ -177,3 +177,11 @@ export async function deleteAllReadings(): Promise<void> {
   const db = await getDb();
   await db.runAsync('DELETE FROM readings');
 }
+
+export async function getOldestReadingTimestamp(): Promise<number | null> {
+  const db = await getDb();
+  const row = await db.getFirstAsync<{ oldest_ts: number | null }>(
+    'SELECT MIN(timestamp) as oldest_ts FROM readings'
+  );
+  return row?.oldest_ts ?? null;
+}

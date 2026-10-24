@@ -5,9 +5,11 @@ import { createBottomTabNavigator, BottomTabBarProps } from '@react-navigation/b
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { initDb } from './db';
+import { configureNotificationHandler } from './notifications';
 import EditScreen from './screens/edit/EditScreen';
 import ViewScreen from './screens/view/ViewScreen';
 import SettingsScreen from './screens/settings/SettingsScreen';
+import { RetentionFlowModal } from './screens/settings/RetentionFlowModal';
 import { ThemeProvider, useTheme } from './state/ThemeContext';
 
 const editIconAsset = require('./assets/icons/edit.png');
@@ -176,6 +178,7 @@ function AppNavigator() {
 
   return (
     <NavigationContainer>
+      <RetentionFlowModal />
       <Tab.Navigator
         initialRouteName="Edit"
         tabBar={(props) => <CustomTabBar {...props} />}
@@ -288,6 +291,7 @@ export default function App() {
   const [initError, setInitError] = useState<string | null>(null);
 
   useEffect(() => {
+    configureNotificationHandler();
     initDb()
       .then(() => setDbReady(true))
       .catch((err) => {

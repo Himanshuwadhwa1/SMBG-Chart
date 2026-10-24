@@ -2,10 +2,12 @@ import { resetTestDatabase } from '../__mocks__/expo-sqlite';
 import {
   addCustomTag,
   createReading,
+  deleteAllReadings,
   deleteCustomTag,
   deleteReading,
   getAllReadings,
   getAllTags,
+  getOldestReadingTimestamp,
   getReadingsByDateRange,
   getSettings,
   getThresholdConfigByType,
@@ -264,6 +266,55 @@ describe('Phase 1 — Database Layer Unit Tests', () => {
 
       expect(updated.retention_duration_months).toBe(4);
       expect(updated.unit_system).toBe('mg/dL');
+    });
+  });
+
+  describe('6. Retention Queries', () => {
+    it('should return null for getOldestReadingTimestamp when no readings exist', async () => {
+      const oldest = await getOldestReadingTimestamp();
+      expect(oldest).toBeNull();
+    });
+
+    it('should return the earliest timestamp among logged readings', async () => {
+      await createReading({
+        slot: 'BB',
+        value: 100,
+        timestamp: 1000000,
+        clinical_date: '2026-05-01',
+      });
+
+      await createReading({
+        slot: 'AB',
+        value: 140,
+        timestamp: 2000000,
+        clinical_date: '2026-05-01',
+      });
+
+      await createReading({
+        slot: 'BL',
+        value: 110,
+        timestamp: 500000, // oldest
+        clinical_date: '2026-05-01',
+      });
+
+      const oldest = await getOldestReadingTimestamp();
+      expect(oldest).toBe(500000);
+    });
+
+    it('should wipe all readings when deleteAllReadings is called', async () => {
+      await createReading({
+        slot: 'BB',
+        value: 105,
+        timestamp: 1000000,
+        clinical_date: '2026-05-01',
+      });
+
+      expect((await getAllReadings()).length).toBe(1);
+
+      await deleteAllReadings();
+
+      expect((await getAllReadings()).length).toBe(0);
+      expect(await getOldestReadingTimestamp()).toBeNull();
     });
   });
 });

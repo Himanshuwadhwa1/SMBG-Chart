@@ -1,6 +1,7 @@
 import { DEFAULT_THRESHOLDS } from '../db/seed';
 import {
   calculateRetentionDeadline,
+  calculateRetentionNotificationPlan,
   evaluateRetentionDeadline,
   getClinicalDate,
   isExtremeReading,
@@ -186,6 +187,66 @@ describe('Phase 2 — Pure Domain Logic Unit Tests', () => {
       expect(status.isExpired).toBe(true);
       expect(status.isApproaching).toBe(false);
       expect(status.daysRemaining).toBeLessThan(0);
+    });
+
+    it('should calculate notification plan: should not schedule if unconfigured or null oldest', () => {
+      expect(calculateRetentionNotificationPlan(null, oldestTimestamp).shouldSchedule).toBe(false);
+      expect(calculateRetentionNotificationPlan(4, null).shouldSchedule).toBe(false);
+      expect(calculateRetentionNotificationPlan(0, oldestTimestamp).shouldSchedule).toBe(false);
+    });
+
+    it('should calculate notification plan: schedule approaching warning when well before threshold', () => {
+      // 30 days before deadline, warning threshold 7 days
+      const thirtyDaysBefore = deadlineTimestamp - 30 * 24 * 60 * 60 * 1000;
+      const plan = calculateRetentionNotificationPlan(
+        retentionMonths,
+        oldestTimestamp,
+        thirtyDaysBefore,
+        7
+      );
+
+      expect(plan.shouldSchedule).toBe(true);
+      expect(plan.reason).toBe('approaching_warning');
+      const expectedWarningTs = deadlineTimestamp - 7 * 24 * 60 * 60 * 1000;
+      expect(plan.triggerTimestamp).toBe(expectedWarningTs);
+    });
+
+    it('should calculate notification plan: schedule deadline reminder when inside warning window', () => {
+      // 3 days before deadline, warning threshold 7 days
+      const threeDaysBefore = deadlineTimestamp - 3 * 24 * 60 * 60 * 1000;
+      const plan = calculateRetentionNotificationPlan(
+        retentionMonths,
+        oldestTimestamp,
+        threeDaysBefore,
+        7
+      );
+
+      expect(plan.shouldSchedule).toBe(true);
+      expect(plan.reason).toBe('deadline_now');
+      expect(plan.triggerTimestamp).toBe(deadlineTimestamp);
+    });
+
+    it('should calculate notification plan: should not schedule when already expired', () => {
+      // At deadline
+      const atDeadlinePlan = calculateRetentionNotificationPlan(
+        retentionMonths,
+        oldestTimestamp,
+        deadlineTimestamp,
+        7
+      );
+      expect(atDeadlinePlan.shouldSchedule).toBe(false);
+      expect(atDeadlinePlan.reason).toBe('none');
+
+      // After deadline
+      const afterDeadline = deadlineTimestamp + 24 * 60 * 60 * 1000;
+      const afterDeadlinePlan = calculateRetentionNotificationPlan(
+        retentionMonths,
+        oldestTimestamp,
+        afterDeadline,
+        7
+      );
+      expect(afterDeadlinePlan.shouldSchedule).toBe(false);
+      expect(afterDeadlinePlan.reason).toBe('none');
     });
   });
 });

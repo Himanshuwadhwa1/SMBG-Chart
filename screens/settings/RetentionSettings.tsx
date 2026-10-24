@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { deleteAllReadings, getSettings, updateSettings } from '../../db';
+import { syncRetentionNotifications } from '../../notifications';
 import { useTheme } from '../../state/ThemeContext';
 
 export const RetentionSettings: React.FC = () => {
@@ -26,6 +27,7 @@ export const RetentionSettings: React.FC = () => {
     try {
       const updated = await updateSettings({ retention_duration_months: months });
       setRetentionMonths(updated.retention_duration_months);
+      await syncRetentionNotifications();
       setMessage({
         text: months === null ? 'Data retention set to Keep Forever' : `Data retention set to ${months} month(s)`,
         isError: false,
@@ -41,6 +43,7 @@ export const RetentionSettings: React.FC = () => {
     const executeClean = async () => {
       try {
         await deleteAllReadings();
+        await syncRetentionNotifications();
         setMessage({ text: 'All readings deleted successfully', isError: false });
       } catch (err: any) {
         setMessage({ text: err.message || 'Failed to clean data', isError: true });
