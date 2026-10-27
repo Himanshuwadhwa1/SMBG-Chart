@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "temp_scaffold",
-    "slug": "temp_scaffold",
+    "name": "SMBG Chart",
+    "slug": "smbg-chart",
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
@@ -22,7 +22,14 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#0969da"
+        }
+      ]
     ]
   }
 }

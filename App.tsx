@@ -9,6 +9,7 @@ import { configureNotificationHandler } from './notifications';
 import EditScreen from './screens/edit/EditScreen';
 import ViewScreen from './screens/view/ViewScreen';
 import SettingsScreen from './screens/settings/SettingsScreen';
+import { ErrorBoundary } from './logging';
 import { RetentionFlowModal } from './screens/settings/RetentionFlowModal';
 import { ThemeProvider, useTheme } from './state/ThemeContext';
 
@@ -26,21 +27,21 @@ const Tab = createBottomTabNavigator<RootTabParamList>();
 
 function MotionView({ children }: { children: React.ReactNode }) {
   const { colors } = useTheme();
-  const [fadeAnim] = useState(() => new Animated.Value(0));
-  const [translateY] = useState(() => new Animated.Value(8));
+  const [fadeAnim] = useState(() => new Animated.Value(0.4));
+  const [translateY] = useState(() => new Animated.Value(4));
 
   useEffect(() => {
-    fadeAnim.setValue(0);
-    translateY.setValue(8);
+    fadeAnim.setValue(0.4);
+    translateY.setValue(4);
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 220,
+        duration: 140,
         useNativeDriver: true,
       }),
       Animated.timing(translateY, {
         toValue: 0,
-        duration: 220,
+        duration: 140,
         useNativeDriver: true,
       }),
     ]).start();
@@ -174,15 +175,34 @@ function CustomTabBar({ state, navigation }: BottomTabBarProps) {
 }
 
 function AppNavigator() {
-  const { colors } = useTheme();
+  const { colors, activeTheme } = useTheme();
+
+  const navTheme = {
+    dark: activeTheme === 'dark',
+    colors: {
+      primary: colors.primary,
+      background: colors.background,
+      card: colors.card,
+      text: colors.text,
+      border: colors.border,
+      notification: colors.primary,
+    },
+    fonts: {
+      regular: { fontFamily: 'System', fontWeight: '400' as const },
+      medium: { fontFamily: 'System', fontWeight: '500' as const },
+      bold: { fontFamily: 'System', fontWeight: '700' as const },
+      heavy: { fontFamily: 'System', fontWeight: '900' as const },
+    },
+  };
 
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navTheme}>
       <RetentionFlowModal />
       <Tab.Navigator
         initialRouteName="Edit"
         tabBar={(props) => <CustomTabBar {...props} />}
         screenOptions={{
+          sceneStyle: { backgroundColor: colors.background },
           headerStyle: {
             backgroundColor: colors.card,
             elevation: 2,
@@ -198,7 +218,7 @@ function AppNavigator() {
             letterSpacing: 1,
           },
           headerTitleAlign: 'center',
-          animation: 'shift',
+          animation: 'fade',
         }}
       >
         <Tab.Screen 
@@ -301,11 +321,13 @@ export default function App() {
   }, []);
 
   return (
-    <SafeAreaProvider>
-      <ThemeProvider>
-        {!dbReady ? <LoadingScreen error={initError} /> : <AppNavigator />}
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <ErrorBoundary>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          {!dbReady ? <LoadingScreen error={initError} /> : <AppNavigator />}
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 }
 

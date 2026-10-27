@@ -26,6 +26,9 @@ module.exports = {
       }
     }),
   },
+  Share: {
+    share: jest.fn(async () => ({ action: 'sharedAction' })),
+  },
   useColorScheme: () => 'light',
   useWindowDimensions: () => ({
     width: 800,

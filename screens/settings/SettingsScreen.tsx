@@ -2,6 +2,8 @@ import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '../../state/ThemeContext';
+import { CrashLogSettings } from './CrashLogSettings';
+import { ExportSettings } from './ExportSettings';
 import { RetentionSettings } from './RetentionSettings';
 import { TagManager } from './TagManager';
 import { ThemeSelector } from './ThemeSelector';
@@ -38,6 +40,9 @@ export default function SettingsScreen() {
         </View>
       </View>
 
+      {/* Export Logbook Data */}
+      <ExportSettings />
+
       {/* Threshold Config Editor */}
       <ThresholdEditor />
 
@@ -46,6 +51,9 @@ export default function SettingsScreen() {
 
       {/* Retention Settings & Clean Now */}
       <RetentionSettings />
+
+      {/* Local Error & Crash Logs */}
+      <CrashLogSettings />
     </ScrollView>
   );
 }
