@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Platform,
   Share,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import * as FileSystem from 'expo-file-system/legacy';
 
 import { exportReadings, ExportFormat, ExportResult } from '../../export';
 import { getDateRangeForPreset } from '../view/dateRanges';
@@ -22,6 +24,61 @@ export const ExportSettings: React.FC = () => {
   const [rangeOption, setRangeOption] = useState<ExportRangeOption>('all');
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [exportStatus, setExportStatus] = useState<string | null>(null);
+
+  const handleSaveToDevice = async () => {
+    setIsExporting(true);
+    setExportStatus(null);
+
+    try {
+      let startDate: string | undefined;
+      let endDate: string | undefined;
+
+      if (rangeOption !== 'all') {
+        const range = getDateRangeForPreset(rangeOption);
+        startDate = range.startDate;
+        endDate = range.endDate;
+      }
+
+      const result: ExportResult = await exportReadings({
+        format,
+        startDate,
+        endDate,
+      });
+
+      if (result.readingCount === 0) {
+        Alert.alert('No Readings', 'There are no readings to export in the selected range.');
+        setExportStatus('No readings found in selected date range.');
+        return;
+      }
+
+      // On Android, use StorageAccessFramework to let the user select any directory (e.g. Downloads, Documents)
+      if (Platform.OS === 'android' && FileSystem.StorageAccessFramework) {
+        const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+        if (permissions.granted) {
+          const mimeType = format === 'csv' ? 'text/csv' : 'application/vnd.ms-excel';
+          const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(
+            permissions.directoryUri,
+            result.filename.replace(/\.(csv|xls)$/, ''),
+            mimeType
+          );
+          await FileSystem.writeAsStringAsync(fileUri, result.content);
+          setExportStatus(`Saved ${result.filename} directly to selected folder!`);
+          Alert.alert('File Saved', `${result.filename} was saved to your device.`);
+          return;
+        }
+      }
+
+      // Fallback: file is already created in local cache/document directory
+      setExportStatus(`File created at: ${result.fileUri || result.filename}`);
+      Alert.alert('File Created', `Saved ${result.filename} to app storage.`);
+    } catch (err: any) {
+      if (err.message && !err.message.includes('dismissed') && !err.message.includes('cancel')) {
+        Alert.alert('Save Error', err.message || 'Failed to save file');
+      }
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const handleExport = async () => {
     setIsExporting(true);
@@ -53,11 +110,19 @@ export const ExportSettings: React.FC = () => {
         `Generated ${result.filename} (${result.rowCount} days, ${result.readingCount} readings).`
       );
 
-      // Open native share sheet
-      await Share.share({
-        title: result.filename,
-        message: result.content,
-      });
+      // Open native share sheet with file details and content
+      if (result.fileUri) {
+        await Share.share({
+          title: result.filename,
+          url: result.fileUri,
+          message: `SMBG Logbook Export: ${result.filename}\n${result.content}`,
+        });
+      } else {
+        await Share.share({
+          title: result.filename,
+          message: result.content,
+        });
+      }
     } catch (err: any) {
       // User cancelling share sheet is normal and should not show error
       if (err.message && !err.message.includes('dismissed') && !err.message.includes('cancel')) {
@@ -222,21 +287,37 @@ export const ExportSettings: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Export Action Button */}
-      <TouchableOpacity
-        style={[styles.exportButton, { backgroundColor: colors.primary }]}
-        onPress={handleExport}
-        disabled={isExporting}
-        testID="export-share-button"
-      >
-        {isExporting ? (
-          <ActivityIndicator color="#ffffff" size="small" />
-        ) : (
-          <Text style={styles.exportButtonText}>
-            Export & Share {format.toUpperCase()}
+      {/* Export Action Buttons */}
+      <View style={{ gap: 10 }}>
+        <TouchableOpacity
+          style={[styles.exportButton, { backgroundColor: colors.primary }]}
+          onPress={handleSaveToDevice}
+          disabled={isExporting}
+          testID="export-save-file-button"
+        >
+          {isExporting ? (
+            <ActivityIndicator color="#ffffff" size="small" />
+          ) : (
+            <Text style={styles.exportButtonText}>
+              💾 Save {format.toUpperCase()} File to Device
+            </Text>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.exportButton,
+            { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: colors.primary },
+          ]}
+          onPress={handleExport}
+          disabled={isExporting}
+          testID="export-share-button"
+        >
+          <Text style={[styles.exportButtonText, { color: colors.primary }]}>
+            📤 Share via Other Apps
           </Text>
-        )}
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </View>
 
       {/* Status Feedback */}
       {exportStatus ? (

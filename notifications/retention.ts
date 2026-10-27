@@ -1,4 +1,9 @@
-import * as Notifications from 'expo-notifications';
+import { setNotificationHandler } from 'expo-notifications/build/NotificationsHandler';
+import { getPermissionsAsync, requestPermissionsAsync } from 'expo-notifications/build/NotificationPermissions';
+import { scheduleNotificationAsync } from 'expo-notifications/build/scheduleNotificationAsync';
+import { cancelScheduledNotificationAsync } from 'expo-notifications/build/cancelScheduledNotificationAsync';
+import { SchedulableTriggerInputTypes } from 'expo-notifications/build/Notifications.types';
+
 import { getOldestReadingTimestamp, getSettings } from '../db';
 import { calculateRetentionNotificationPlan } from '../domain/retention';
 
@@ -10,7 +15,7 @@ export const RETENTION_NOTIFICATION_ID = 'smbg-retention-warning';
  */
 export function configureNotificationHandler(): void {
   try {
-    Notifications.setNotificationHandler({
+    setNotificationHandler({
       handleNotification: async () => ({
         shouldShowAlert: true,
         shouldPlaySound: true,
@@ -29,10 +34,10 @@ export function configureNotificationHandler(): void {
  */
 export async function requestNotificationPermissions(): Promise<boolean> {
   try {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    const { status: existingStatus } = await getPermissionsAsync();
     let finalStatus = existingStatus;
     if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
+      const { status } = await requestPermissionsAsync();
       finalStatus = status;
     }
     return finalStatus === 'granted';
@@ -47,7 +52,7 @@ export async function requestNotificationPermissions(): Promise<boolean> {
  */
 export async function cancelRetentionNotifications(): Promise<void> {
   try {
-    await Notifications.cancelScheduledNotificationAsync(RETENTION_NOTIFICATION_ID);
+    await cancelScheduledNotificationAsync(RETENTION_NOTIFICATION_ID);
   } catch (err) {
     // If notification wasn't scheduled or platform doesn't find it, ignore
   }
@@ -97,22 +102,31 @@ export async function syncRetentionNotifications(currentTimestamp: number = Date
       ? 'Your blood glucose data will reach its retention limit in 7 days. Export or review your data before it is eligible for cleanup.'
       : 'Your blood glucose data has reached its retention limit today. Open the app to review your readings.';
 
-  await Notifications.scheduleNotificationAsync({
-    identifier: RETENTION_NOTIFICATION_ID,
-    content: {
-      title,
-      body,
-      sound: true,
-    },
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.DATE,
-      date: new Date(plan.triggerTimestamp),
-    },
-  });
+  try {
+    await scheduleNotificationAsync({
+      identifier: RETENTION_NOTIFICATION_ID,
+      content: {
+        title,
+        body,
+        sound: true,
+      },
+      trigger: {
+        type: SchedulableTriggerInputTypes.DATE,
+        date: new Date(plan.triggerTimestamp),
+      },
+    });
 
-  return {
-    scheduled: true,
-    triggerTimestamp: plan.triggerTimestamp,
-    reason: plan.reason,
-  };
+    return {
+      scheduled: true,
+      triggerTimestamp: plan.triggerTimestamp,
+      reason: plan.reason,
+    };
+  } catch (scheduleErr) {
+    console.warn('Failed to schedule local notification:', scheduleErr);
+    return {
+      scheduled: false,
+      triggerTimestamp: plan.triggerTimestamp,
+      reason: 'scheduling_failed',
+    };
+  }
 }

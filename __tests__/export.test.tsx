@@ -306,6 +306,9 @@ describe('Phase 7 — Export Pipeline & Wide Format Tests', () => {
       expect(resultCsv.content).not.toContain('2026-09-01');
       expect(resultCsv.content).not.toContain('2026-11-05');
 
+      expect(resultCsv.fileUri).toBeDefined();
+      expect(resultCsv.fileUri).toContain(resultCsv.filename);
+
       // Export all in Excel format
       const resultXls = await exportReadings({
         format: 'xlsx',
@@ -314,6 +317,8 @@ describe('Phase 7 — Export Pipeline & Wide Format Tests', () => {
       expect(resultXls.readingCount).toBe(4);
       expect(resultXls.filename).toMatch(/^smbg_logbook_\d{4}-\d{2}-\d{2}\.xls$/);
       expect(resultXls.mimeType).toBe('application/vnd.ms-excel');
+      expect(resultXls.fileUri).toBeDefined();
+      expect(resultXls.fileUri).toContain(resultXls.filename);
       expect(resultXls.content).toContain('2026-09-01');
       expect(resultXls.content).toContain('2026-10-10');
       expect(resultXls.content).toContain('2026-11-05');
@@ -362,6 +367,8 @@ describe('Phase 7 — Export Pipeline & Wide Format Tests', () => {
       expect(shareSpy).toHaveBeenCalledTimes(1);
       const shareArg = shareSpy.mock.calls[0][0];
       expect(shareArg.title).toMatch(/\.xls$/);
+      expect(shareArg.url).toMatch(/\.xls$/);
+      expect(shareArg.message).toContain('SMBG Logbook Export:');
       expect(shareArg.message).toContain('<Workbook');
 
       // Check status message
@@ -390,6 +397,36 @@ describe('Phase 7 — Export Pipeline & Wide Format Tests', () => {
       expect(alertSpy).toHaveBeenCalledWith(
         'No Readings',
         'There are no readings to export in the selected range.'
+      );
+    });
+
+    it('saves physical file directly to device storage using StorageAccessFramework', async () => {
+      await createReading({
+        slot: 'BB',
+        value: 110,
+        timestamp: new Date('2026-10-14T08:00:00').getTime(),
+        clinical_date: '2026-10-14',
+      });
+
+      const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+
+      let tree: TestRenderer.ReactTestRenderer;
+      await act(async () => {
+        tree = TestRenderer.create(
+          <ThemeProvider>
+            <ExportSettings />
+          </ThemeProvider>
+        );
+      });
+
+      const saveFileBtn = tree!.root.findByProps({ testID: 'export-save-file-button' });
+      await act(async () => {
+        await saveFileBtn.props.onPress();
+      });
+
+      expect(alertSpy).toHaveBeenCalledWith(
+        'File Saved',
+        expect.stringMatching(/smbg_logbook_.*\.csv was saved to your device\./)
       );
     });
   });

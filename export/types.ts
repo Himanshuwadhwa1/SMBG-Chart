@@ -31,4 +31,5 @@ export interface ExportResult {
   mimeType: string;
   rowCount: number;
   readingCount: number;
+  fileUri?: string;
 }

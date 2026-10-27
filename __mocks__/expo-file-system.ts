@@ -49,6 +49,24 @@ export async function deleteAsync(
   }
 }
 
+export const StorageAccessFramework = {
+  requestDirectoryPermissionsAsync: jest.fn(async () => ({
+    granted: true,
+    directoryUri: 'content://com.android.externalstorage.documents/tree/primary%3ADownloads',
+  })),
+  createFileAsync: jest.fn(async (parentUri: string, fileName: string, mimeType: string) => {
+    const ext = mimeType === 'text/csv' ? '.csv' : '.xls';
+    const fileUri = `${parentUri}/${fileName}${ext}`;
+    mockFileStore[fileUri] = '';
+    return fileUri;
+  }),
+  writeAsStringAsync,
+  readAsStringAsync,
+  deleteAsync,
+};
+
 export function resetMockFileSystem(): void {
   mockFileStore = {};
+  StorageAccessFramework.requestDirectoryPermissionsAsync.mockClear();
+  StorageAccessFramework.createFileAsync.mockClear();
 }
