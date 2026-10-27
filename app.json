@@ -1,32 +1,32 @@
 {
   "expo": {
-    "name": "SMBG Chart",
-    "slug": "smbg-chart",
+    "name": "Sugar Tracker",
+    "slug": "sugar-tracker",
     "version": "1.0.0",
     "orientation": "default",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/android/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "package": "com.himanshu.sugartracker",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundColor": "#0969da",
+        "foregroundImage": "./assets/android/adaptive-foreground.png",
+        "monochromeImage": "./assets/android/adaptive-foreground.png"
       },
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/android/icon.png"
     },
     "plugins": [
       "expo-sqlite",
       [
         "expo-notifications",
         {
-          "icon": "./assets/icon.png",
+          "icon": "./assets/android/adaptive-foreground.png",
           "color": "#0969da"
         }
       ]

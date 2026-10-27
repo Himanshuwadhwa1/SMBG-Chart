@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Image,
   Platform,
   Share,
   StyleSheet,
@@ -298,9 +299,16 @@ export const ExportSettings: React.FC = () => {
           {isExporting ? (
             <ActivityIndicator color="#ffffff" size="small" />
           ) : (
-            <Text style={styles.exportButtonText}>
-              💾 Save {format.toUpperCase()} File to Device
-            </Text>
+            <View style={styles.buttonContent}>
+              <Image
+                source={require('../../assets/icons/save.png')}
+                style={[styles.buttonIcon, { tintColor: '#ffffff' }]}
+                resizeMode="contain"
+              />
+              <Text style={styles.exportButtonText}>
+                Save {format.toUpperCase()} File to Device
+              </Text>
+            </View>
           )}
         </TouchableOpacity>
 
@@ -313,9 +321,16 @@ export const ExportSettings: React.FC = () => {
           disabled={isExporting}
           testID="export-share-button"
         >
-          <Text style={[styles.exportButtonText, { color: colors.primary }]}>
-            📤 Share via Other Apps
-          </Text>
+          <View style={styles.buttonContent}>
+            <Image
+              source={require('../../assets/icons/export.png')}
+              style={[styles.buttonIcon, { tintColor: colors.primary }]}
+              resizeMode="contain"
+            />
+            <Text style={[styles.exportButtonText, { color: colors.primary }]}>
+              Share via Other Apps
+            </Text>
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -398,6 +413,16 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  buttonIcon: {
+    width: 18,
+    height: 18,
   },
   exportButtonText: {
     color: '#ffffff',
