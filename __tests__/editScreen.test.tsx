@@ -64,6 +64,12 @@ describe('Phase 3 — Edit Mode Component & Flow Tests', () => {
       );
     });
 
+    // Open dropdown to view chips
+    const trigger = tree!.root.findByProps({ testID: 'tag-picker-dropdown-trigger' });
+    act(() => {
+      trigger.props.onPress();
+    });
+
     const chip1 = tree!.root.findByProps({ testID: 'tag-chip-1' });
     const chip2 = tree!.root.findByProps({ testID: 'tag-chip-2' });
 

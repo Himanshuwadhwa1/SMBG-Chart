@@ -150,5 +150,24 @@ describe('Phase 4 — View Mode Component & Preset Tests', () => {
     // Should include reading from 2026-01-15
     const dateRowJan = tree!.root.findByProps({ testID: 'date-row-2026-01-15' });
     expect(dateRowJan).toBeTruthy();
+
+    // Verify manual Refresh button exists and refreshes
+    const refreshBtn = tree!.root.findByProps({ testID: 'view-refresh-button' });
+    expect(refreshBtn).toBeTruthy();
+
+    // Add a new reading and trigger manual refresh
+    await createReading({
+      slot: 'AD',
+      value: 140,
+      timestamp: Date.now(),
+      clinical_date: '2026-01-15',
+    });
+
+    await act(async () => {
+      refreshBtn.props.onPress();
+    });
+
+    const refreshedRow = tree!.root.findByProps({ testID: 'date-row-2026-01-15' });
+    expect(refreshedRow).toBeTruthy();
   });
 });
