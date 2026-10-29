@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '../../state/ThemeContext';
 import { CrashLogSettings } from './CrashLogSettings';
@@ -11,13 +12,15 @@ import { ThresholdEditor } from './ThresholdEditor';
 
 export default function SettingsScreen() {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
+  const bottomScrollPadding = 68 + Math.max(insets.bottom + 8, 16) + 24;
 
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={[
         styles.container,
-        { flexGrow: 1, backgroundColor: colors.background, paddingBottom: 90 },
+        { flexGrow: 1, backgroundColor: colors.background, paddingBottom: bottomScrollPadding },
       ]}
       testID="settings-screen"
     >

@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   createReading,
@@ -215,12 +216,16 @@ export default function EditScreen() {
     }
   };
 
+  const insets = useSafeAreaInsets();
+  // Floating bar is 68dp tall + bottomMargin (insets.bottom + 8, min 16) + 24dp breathing room
+  const bottomScrollPadding = 68 + Math.max(insets.bottom + 8, 16) + 24;
+
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={[
         styles.container,
-        { flexGrow: 1, backgroundColor: colors.background, paddingBottom: 90 },
+        { flexGrow: 1, backgroundColor: colors.background, paddingBottom: bottomScrollPadding },
       ]}
       testID="edit-screen"
     >

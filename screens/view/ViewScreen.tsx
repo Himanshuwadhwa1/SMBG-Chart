@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getReadingsByDateRange, getThresholdConfigs } from '../../db';
 import { ReadingWithTags, ThresholdConfig } from '../../db/types';
@@ -91,12 +92,15 @@ export default function ViewScreen() {
     fetchReadings(activeRange.startDate, activeRange.endDate, false);
   };
 
+  const insets = useSafeAreaInsets();
+  const bottomScrollPadding = 68 + Math.max(insets.bottom + 8, 16) + 24;
+
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={[
         styles.container,
-        { flexGrow: 1, backgroundColor: colors.background, paddingBottom: 90 },
+        { flexGrow: 1, backgroundColor: colors.background, paddingBottom: bottomScrollPadding },
       ]}
       testID="view-screen"
       refreshControl={

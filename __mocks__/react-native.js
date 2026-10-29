@@ -16,6 +16,12 @@ module.exports = {
   Modal: createComponent('Modal'),
   ScrollView: createComponent('ScrollView'),
   ActivityIndicator: createComponent('ActivityIndicator'),
+  Image: createComponent('Image'),
+  RefreshControl: createComponent('RefreshControl'),
+  Platform: {
+    OS: 'android',
+    select: (objs) => (objs && objs.android !== undefined ? objs.android : objs.default),
+  },
   StyleSheet: {
     create: (styles) => styles,
   },

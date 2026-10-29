@@ -2,7 +2,7 @@
   "expo": {
     "name": "Sugar Tracker",
     "slug": "sugar-tracker",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "default",
     "icon": "./assets/android/icon.png",
     "userInterfaceStyle": "light",
@@ -11,6 +11,7 @@
     },
     "android": {
       "package": "com.himanshu.sugartracker",
+      "versionCode": 2,
       "adaptiveIcon": {
         "backgroundColor": "#0969da",
         "foregroundImage": "./assets/android/adaptive-foreground.png",
